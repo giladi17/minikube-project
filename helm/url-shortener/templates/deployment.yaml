@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-url-shortener
+  labels:
+    app: url-shortener
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: url-shortener
+  template:
+    metadata:
+      labels:
+        app: url-shortener
+        environment: {{ .Values.environment }}
+    spec:
+      containers:
+        - name: app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          
+          # בדיקה האם האפליקציה חיה (אם נכשל, קוברנטיס יעשה Restart לפוד)
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.service.targetPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 15
+
+          # בדיקה האם האפליקציה מוכנה לקבל טראפיק (אם נכשל, הראוטר לא יעביר אליה בקשות)
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.service.targetPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            
+          # הגבלת משאבים קריטית ליציבות הקלאסטר
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

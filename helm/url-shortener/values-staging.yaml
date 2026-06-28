@@ -1,0 +1,20 @@
+environment: staging
+replicaCount: 2
+
+image:
+  repository: 066380525112.dkr.ecr.us-east-1.amazonaws.com/url-shortener
+  tag: "latest" # ה-CD Pipeline שלנו ידרוס את זה עם ה-Commit SHA
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "250m"
+    memory: "256Mi"
