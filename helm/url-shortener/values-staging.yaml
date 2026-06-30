@@ -3,7 +3,7 @@ replicaCount: 2
 
 image:
   repository: 066380525112.dkr.ecr.us-east-1.amazonaws.com/url-shortener
-  tag: "latest" # ה-CD Pipeline שלנו ידרוס את זה עם ה-Commit SHA
+  tag: "1af5a8662d3ffac256f9f578010e3d43cdadebab"
   pullPolicy: IfNotPresent
 
 service:
