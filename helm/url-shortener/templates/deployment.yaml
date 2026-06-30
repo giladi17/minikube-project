@@ -15,6 +15,9 @@ spec:
         app: url-shortener
         environment: {{ .Values.environment }}
     spec:
+      # כאן הוספנו את ההרשאה ל-ECR
+      imagePullSecrets:
+        - name: ecr-registry-secret
       containers:
         - name: app
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -22,7 +25,7 @@ spec:
           ports:
             - containerPort: {{ .Values.service.targetPort }}
           
-          # בדיקה האם האפליקציה חיה (אם נכשל, קוברנטיס יעשה Restart לפוד)
+          # בדיקה האם האפליקציה חיה
           livenessProbe:
             httpGet:
               path: /health
@@ -30,7 +33,7 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 15
 
-          # בדיקה האם האפליקציה מוכנה לקבל טראפיק (אם נכשל, הראוטר לא יעביר אליה בקשות)
+          # בדיקה האם האפליקציה מוכנה לקבל טראפיק
           readinessProbe:
             httpGet:
               path: /health
