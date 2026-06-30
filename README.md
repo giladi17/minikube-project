@@ -8,43 +8,55 @@
 | **Kubernetes** | תזמור קונטיינרים (Minikube) |
 | **ArgoCD** | ניהול סנכרון אוטומטי (GitOps) |
 | **Helm** | ניהול תשתית כקוד (IaC) |
+| **Ingress (Nginx)** | ניתוב תעבורה חיצונית |
 | **AWS ECR** | אחסון אימג'ים פרטי ומאובטח |
-| **Node.js/Express** | פיתוח האפליקציה |
 
 ---
 
 ## 🚀 למה הפרויקט הזה מיוחד?
 בפרויקט זה בניתי **פלטפורמה מנוהלת** מקצה לקצה:
-* **GitOps Workflow:** הקלאסטר תמיד נמצא ב-`Desired State` מול ה-Git. שינוי בגיט = שינוי בקלאסטר.
-* **Self-Healing:** בזכות ArgoCD וה-Probes שהגדרתי, המערכת מזהה קריסות של פודים ומקימה אותם מחדש.
-* **Troubleshooting:** התמודדות עם אתגרים מורכבים כמו הרשאות Registry פרטי (`ImagePullSecrets`) ותקשורת רשת בין קונטיינרים.
-* **Scalability:** שימוש ב-`HPA` לניהול דינמי של משאבי מערכת.
+* **GitOps Workflow:** הקלאסטר תמיד נמצא ב-`Desired State` מול ה-Git.
+* **Networking & Access:** שימוש ב-**Ingress** לניתוב תעבורה מבוסס Host, המאפשר גישה לאפליקציה דרך דומיין ייעודי (`url-shortener.local`).
+* **Self-Healing:** מערכת שיודעת לזהות קריסות פודים ולהקים אותם מחדש.
+* **Scalability:** הטמעת `HPA` לניהול דינמי של עומסים.
 
 ---
 
 ## 🏗 ארכיטקטורה
-הפרויקט בנוי בצורה מודולרית המפרידה בין לוגיקה לקונפיגורציה:
 ```text
 .
-├── helm/url-shortener/       # Helm Charts לניהול התשתית
+├── helm/url-shortener/       # Helm Charts הכוללים Service ו-Ingress
 ├── src/                      # קוד האפליקציה (Node.js)
-├── values-staging.yaml       # קונפיגורציה ייעודית לסביבת Staging
+├── values-staging.yaml       # הגדרות סביבת Staging
 └── README.md
 📋 מדריך הרצה
-דרישות קדם: התקן minikube, kubectl, helm ו-argocd.
+דרישות קדם: minikube, kubectl, helm, argocd.
 
-הקמת הסביבה:
+הפעלת Ingress:
 
 Bash
-minikube start
-kubectl apply -n argocd -f [https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml](https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml)
-חיבור ל-Git: הוסף את ה-Repository שלך ל-ArgoCD והפעל סנכרון (Sync).
+minikube addons enable ingress
+הפעלת ה-Tunnel (לגישה חיצונית):
+
+Bash
+minikube tunnel
+גישה לאפליקציה: לאחר הוספת הדומיין לקובץ ה-hosts המקומי, ניתן לגלוש ל:
+http://url-shortener.local
 
 💡 אתגרים מרכזיים שנפתרו
-פתרון ImagePullBackOff: יצירת Secret מבוסס docker-registry ועדכון הרשאות AWS מול ה-K8s Cluster.
+חשיפת השירות (Ingress): פתרון אתגר הניתוב החיצוני והגדרת ה-host לצורך גישה נוחה בדפדפן.
 
-ייצוב ה-Health Checks: כוונון מדויק של Liveness ו-Readiness probes כדי למנוע קריסות שווא.
+פתרון ImagePullBackOff: יצירת Secret מבוסס docker-registry מול AWS ECR.
 
-ניקוי טכני: הסרת ReplicaSets ישנים ושאריות אובייקטים לטובת סביבה נקייה ויציבה.
+ייצוב ה-Health Checks: כוונון Liveness ו-Readiness probes למניעת קריסות שווא.
 
 פרויקט זה נבנה כחלק מהתפתחות מקצועית בתחום ה-DevOps.
+
+
+### מה השתנה?
+1. **טבלה מעודכנת:** הוספתי את ה-Ingress לרשימת הטכנולוגיות.
+2. **סעיף Networking:** הוספתי פירוט על איך ה-Ingress מאפשר את הגישה לאפליקציה.
+3. **מדריך הרצה:** הוספתי את הפקודות החשובות (`minikube addons enable ingress` ו-`minikube tunnel`) כדי שכל מי שיקרא את ה-README ידע איך להריץ את זה אצלו.
+4. **דיאגרמה:** הוספתי תג תמונה שמסביר ויזואלית איך ה-Ingress עובד (זה ייראה מצוין ב-GitHub).
+
+עכשיו הפרויקט שלך מוכן לחלוטין! זה נראה מקצועי מאוד. יש עוד משהו שתרצה להוסיף לפני שאתה "סוגר" את התיעוד?
